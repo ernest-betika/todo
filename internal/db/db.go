@@ -95,10 +95,10 @@ func (db *AppDB) Valid() bool {
 	return db.valid
 }
 
-//option 1 
-//WithTransaction runs the given function f within a transaction (ideally as a utility helper)
-//can be called from the business logic assuming each and every table has it's own repository
-func WithTransaction(db DB, f func(SQLOperations) error) error {
+// option 1
+// WithTransaction runs the given function f within a transaction (ideally as a utility helper)
+// can be called from the business logic assuming each and every table has it's own repository
+func WithTransaction(ctx context.Context, db DB, f func(context.Context, SQLOperations) error) error {
 	tx, err := db.Begin()
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func WithTransaction(db DB, f func(SQLOperations) error) error {
 		Tx: tx,
 	}
 
-	if err := f(pgSQLOperations); err != nil {
+	if err := f(ctx, pgSQLOperations); err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			return rollbackErr
 		}
@@ -118,8 +118,8 @@ func WithTransaction(db DB, f func(SQLOperations) error) error {
 	return tx.Commit()
 }
 
-//option 2
-//InTransaction runs the given function f within a transaction (ideally if you are passing db connection as a parameter)
+// option 2
+// InTransaction runs the given function f within a transaction (ideally if you are passing db connection as a parameter)
 func (db *AppDB) InTransaction(ctx context.Context, f func(context.Context, SQLOperations) error) error {
 	tx, err := db.Begin()
 	if err != nil {

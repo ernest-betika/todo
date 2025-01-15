@@ -52,7 +52,7 @@ func (s *todoCommentService) CreateTodoComment(
 	}
 
 	/*
-	this is the first option to simulate rollback usage is by passing db connection as a parameter
+		this is the first option to simulate rollback usage is by passing db connection as a parameter
 
 	*/
 	// err = dB.InTransaction(ctx, func(ctx context.Context, operations db.SQLOperations) error {
@@ -76,7 +76,7 @@ func (s *todoCommentService) CreateTodoComment(
 	// 	return nil
 	// })
 
-	err = s.txHelper.InTransaction(func(transactionRepository repos.TransactionRepository) error {
+	err = s.txHelper.InTransaction(ctx, func(transactionRepository repos.TransactionRepository) error {
 
 		todo.Completed = true
 
@@ -86,7 +86,7 @@ func (s *todoCommentService) CreateTodoComment(
 			return err
 		}
 
-		//simulate sleep. If context.Timeout is set error will be printed of context exceeded and the above query will be rolled back. 
+		//simulate sleep. If context.Timeout is set error will be printed of context exceeded and the above query will be rolled back.
 		// check on todo repository completed column
 		time.Sleep(5 * time.Second)
 

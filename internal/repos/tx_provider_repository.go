@@ -1,11 +1,12 @@
 package repos
 
 import (
+	"context"
 	"todo/internal/db"
 )
 
 type TransactionProvider interface {
-	InTransaction(txFunc func(adapters TransactionRepository) error) error
+	InTransaction(ctx context.Context, txFunc func(adapters TransactionRepository) error) error
 }
 
 type transactionProvider struct {
@@ -13,16 +14,16 @@ type transactionProvider struct {
 }
 
 type TransactionRepository struct {
-	TodoRepository        *todoRepository
-	TodoCommentRepository *todoCommentRepository
+	TodoRepository        TodoRepository
+	TodoCommentRepository TodoCommentRepository
 }
 
 func NewTransactionProviderRepository(operations db.SQLOperations) TransactionProvider {
 	return &transactionProvider{operations: operations}
 }
 
-func (r *transactionProvider) InTransaction(txProviders func(transactionRepository TransactionRepository) error) error {
-	return db.WithTransaction(db.GetDB(), func(operations db.SQLOperations) error {
+func (r *transactionProvider) InTransaction(ctx context.Context, txProviders func(transactionRepository TransactionRepository) error) error {
+	return db.WithTransaction(ctx, db.GetDB(), func(ctx context.Context, operations db.SQLOperations) error {
 		transactionRepository := TransactionRepository{
 			TodoRepository:        NewTodoRepository(operations),
 			TodoCommentRepository: NewTodoCommentRepository(operations),

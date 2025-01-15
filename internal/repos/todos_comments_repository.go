@@ -25,7 +25,7 @@ type (
 
 func NewTodoCommentRepository(
 	db db.SQLOperations,
-) *todoCommentRepository {
+) TodoCommentRepository {
 	return &todoCommentRepository{
 		db: db,
 	}

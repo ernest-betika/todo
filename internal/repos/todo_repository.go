@@ -30,7 +30,7 @@ type (
 	}
 )
 
-func NewTodoRepository(operations db.SQLOperations) *todoRepository {
+func NewTodoRepository(operations db.SQLOperations) TodoRepository {
 	return &todoRepository{operations: operations}
 }
 
