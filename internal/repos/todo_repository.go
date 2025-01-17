@@ -2,6 +2,7 @@ package repos
 
 import (
 	"context"
+	"fmt"
 	"todo/internal/db"
 	"todo/internal/entities"
 )
@@ -20,7 +21,7 @@ type (
 		//below to methods are similar only difference is that one passes the db connection as a param
 		Save(ctx context.Context, operations db.SQLOperations, todo *entities.Todo) error
 		NSave(ctx context.Context, todo *entities.Todo) error
-		
+
 		TodoByID(ctx context.Context, todoID int64) (*entities.Todo, error)
 		Todos(ctx context.Context) ([]*entities.Todo, error)
 	}
@@ -94,6 +95,7 @@ func (r *todoRepository) Save(
 			todo.UpdatedAt,
 		).Scan(&todo.ID)
 		if err != nil {
+			fmt.Printf("todo comment repo err %v", err.Error())
 			return err
 		}
 

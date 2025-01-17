@@ -22,10 +22,13 @@ func main() {
 
 	fmt.Printf("selected environment = [%v]", os.Getenv("ENVIRONMENT"))
 
-	dB := db.InitDB()
-	defer dB.Close()
+	dB1 := db.InitDB()
+	defer dB1.Close()
 
-	appRouter := router.BuildRouter(dB)
+	dB2 := db.InitDB()
+	defer dB2.Close()
+
+	appRouter := router.BuildRouter(dB1, dB2)
 
 	port := os.Getenv("PORT")
 	if port == "" {

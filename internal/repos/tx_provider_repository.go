@@ -23,7 +23,7 @@ func NewTransactionProviderRepository(operations db.SQLOperations) TransactionPr
 }
 
 func (r *transactionProvider) InTransaction(ctx context.Context, txProviders func(transactionRepository TransactionRepository) error) error {
-	return db.WithTransaction(ctx, db.GetDB(), func(ctx context.Context, operations db.SQLOperations) error {
+	return db.WithTransaction(db.GetDB(), func(operations db.SQLOperations) error {
 		transactionRepository := TransactionRepository{
 			TodoRepository:        NewTodoRepository(operations),
 			TodoCommentRepository: NewTodoCommentRepository(operations),

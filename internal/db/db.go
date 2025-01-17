@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -40,30 +39,6 @@ type pgSQLOperations struct {
 	*sql.Tx
 }
 
-func (h *AppDB) InTx(ctx context.Context, f func(tx *sql.Tx) error) error {
-
-	tx, err := h.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
-	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
-	}
-
-	if err := f(tx); err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			return rollbackErr
-		}
-		return err
-	}
-
-	if err = tx.Commit(); err != nil {
-		log.Printf("Error committing transaction: %v", err)
-		// Optionally return an error here to signal the commit failure
-		// err = fmt.Errorf("failed to commit transaction: %w", err)
-		return err
-	}
-
-	return nil
-}
-
 func InitDB() DB {
 	return initDBWithURL(os.Getenv("DATABASE_URL"))
 }
@@ -98,8 +73,8 @@ func (db *AppDB) Valid() bool {
 // option 1
 // WithTransaction runs the given function f within a transaction (ideally as a utility helper)
 // can be called from the business logic assuming each and every table has it's own repository
-func WithTransaction(ctx context.Context, db DB, f func(context.Context, SQLOperations) error) error {
-	tx, err := db.Begin()
+func WithTransaction(dB DB, f func(SQLOperations) error) error {
+	tx, err := dB.Begin()
 	if err != nil {
 		return err
 	}
@@ -108,7 +83,7 @@ func WithTransaction(ctx context.Context, db DB, f func(context.Context, SQLOper
 		Tx: tx,
 	}
 
-	if err := f(ctx, pgSQLOperations); err != nil {
+	if err := f(pgSQLOperations); err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			return rollbackErr
 		}

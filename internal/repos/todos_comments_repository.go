@@ -19,15 +19,15 @@ type (
 	}
 
 	todoCommentRepository struct {
-		db db.SQLOperations
+		operations db.SQLOperations
 	}
 )
 
 func NewTodoCommentRepository(
-	db db.SQLOperations,
+	operations db.SQLOperations,
 ) TodoCommentRepository {
 	return &todoCommentRepository{
-		db: db,
+		operations: operations,
 	}
 }
 
@@ -37,7 +37,7 @@ func (r *todoCommentRepository) NSave(ctx context.Context, todoComment *entities
 
 		todoComment.CreatedAt = time.Now()
 
-		err := r.db.QueryRowContext(
+		err := r.operations.QueryRowContext(
 			ctx,
 			insertTodoCommentSQL,
 			todoComment.Comment,
@@ -68,6 +68,7 @@ func (r *todoCommentRepository) Save(ctx context.Context, operations db.SQLOpera
 			todoComment.CreatedAt,
 		).Scan(&todoComment.ID)
 		if err != nil {
+			fmt.Printf("todo repo err %v", err)
 			return err
 		}
 
